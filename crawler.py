@@ -4,12 +4,14 @@ from __future__ import unicode_literals
 import argparse
 import json
 import sys
+import datetime
 from io import open
 
 from inscrawler import InsCrawler
 from inscrawler.settings import override_settings
 from inscrawler.settings import prepare_override_settings
 
+ig_username = ''
 
 def usage():
     return """
@@ -53,7 +55,10 @@ def arg_required(args, fields=[]):
 def output(data, filepath):
     out = json.dumps(data, ensure_ascii=False)
     if filepath:
-        with open(filepath, "w", encoding="utf8") as f:
+        outfilename = "_".join([datetime.datetime.now().strftime("%Y%m%d_%H%M%S"), ig_username])
+
+        # with open(filepath, "w", encoding="utf8") as f:
+        with open(outfilename, "w", encoding="utf8") as f:
             f.write(out)
     else:
         print(out)
@@ -78,6 +83,8 @@ if __name__ == "__main__":
 
     if args.mode in ["posts", "posts_full"]:
         arg_required("username")
+        ig_username = args.username
+
         output(
             get_posts_by_user(
                 args.username, args.number, args.mode == "posts_full", args.debug

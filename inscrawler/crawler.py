@@ -102,7 +102,7 @@ class InsCrawler(Logging):
         statistics = [ele.text for ele in browser.find(".g47SY")]
         post_num, follower_num, following_num = statistics
         return {
-            "name": name.text,
+            "name": name.text if name is not None else 'None',
             "desc": desc.text if desc else None,
             "photo_url": photo.get_attribute("src"),
             "post_num": post_num,
