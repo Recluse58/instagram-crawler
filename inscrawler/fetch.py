@@ -87,7 +87,11 @@ def fetch_likes_plays(browser, dict_post):
 def fetch_likers(browser, dict_post):
     if not settings.fetch_likers:
         return
-    like_info_btn = browser.find_one(".EDfFK ._0mzm-.sqdOP")
+    ## Issue 58: https://github.com/huaying/instagram-crawler/issues/58 ##
+    # like_info_btn = browser.find_one(".EDfFK ._0mzm-.sqdOP")
+    # like_info_btn = browser.find_one(".sqdOP.yWX7d._8A5w5")
+    like_info_btn = browser.find(".sqdOP.yWX7d._8A5w5")[1]
+
     like_info_btn.click()
 
     likers = {}

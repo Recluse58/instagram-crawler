@@ -132,6 +132,8 @@ class InsCrawler(Logging):
         }
 
     def get_user_posts(self, username, number=None, detail=False):
+        self.login()
+
         user_profile = self.get_user_profile(username)
         if not number:
             number = instagram_int(user_profile["post_num"])
@@ -189,8 +191,6 @@ class InsCrawler(Logging):
         browser = self.browser
         browser.implicitly_wait(1)
         browser.scroll_down()
-        ele_post = browser.find_one(".v1Nh3 a")
-        ele_post.click()
         dict_posts = {}
 
         pbar = tqdm(total=num)
@@ -206,6 +206,9 @@ class InsCrawler(Logging):
 
             # Fetching post detail
             try:
+                ele_post = browser.find(".v1Nh3 a")[i - 1]
+                ele_post.click()
+
                 if(i < num):
                     check_next_post(all_posts[i]['key'])
                     i = i + 1
@@ -221,6 +224,9 @@ class InsCrawler(Logging):
                 fetch_caption(browser, dict_post)
                 fetch_comments(browser, dict_post)
 
+                close_btn = browser.find(".wpO6b")[-1]
+                close_btn.click()
+
             except RetryException:
                 sys.stderr.write(
                     "\x1b[1;31m"
@@ -229,6 +235,9 @@ class InsCrawler(Logging):
                     + "\x1b[0m"
                     + "\n"
                 )
+
+                close_btn = browser.find(".wpO6b")[-1]
+                close_btn.click()
                 break
 
             except Exception:
@@ -240,9 +249,11 @@ class InsCrawler(Logging):
                     + "\n"
                 )
                 traceback.print_exc()
+                close_btn = browser.find(".wpO6b")[-1]
+                close_btn.click()
 
-            self.log(json.dumps(dict_post, ensure_ascii=False))
-            dict_posts[browser.current_url] = dict_post
+            self.log(json.dumps(dict_post, ensure_ascii=True))
+            dict_posts[cur_key] = dict_post
 
             pbar.update(1)
 
