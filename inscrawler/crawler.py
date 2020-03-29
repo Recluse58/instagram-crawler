@@ -323,3 +323,57 @@ class InsCrawler(Logging):
         pbar.close()
         print("Done. Fetched %s posts." % (min(len(posts), num)))
         return posts[:num]
+
+    def auto_follow(self, ig_to_follow):
+        self.login()
+
+        browser = self.browser
+
+        accounts_list = open(ig_to_follow,'r').read()
+        accounts = accounts_list.split(',')
+        accounts = [a.replace('"', '') for a in accounts]
+        accounts = [a.replace(' ', '') for a in accounts]
+
+        dict_post = {}
+        dict_post["followed"] = []
+        dict_post["previously_followed"] = []
+        dict_post["others"] = []
+
+        for username in accounts:
+            url = "%s/%s/" % (InsCrawler.URL, username)
+            browser.get(url)
+
+            ## Follow button
+            # .ffKix.sqdOP.L3NKy.y3zKF
+            # .BY3EC.sqdOP.L3NKy.y3zKF
+
+            ## Unfollow button
+            # .ffKix.sqdOP.L3NKy._8A5w5
+
+            ## Requested button
+            # .ffKix.sqdOP.L3NKy._8A5w5
+
+            follow_btn = None
+
+            if follow_btn is None:
+                follow_btn = browser.find_one(".ffKix.sqdOP.L3NKy.y3zKF")
+
+            if follow_btn is None:
+                follow_btn = browser.find_one(".BY3EC.sqdOP.L3NKy.y3zKF")
+
+            if follow_btn is not None:
+                follow_btn.click()
+                dict_post["followed"] = dict_post["followed"].append(username)
+
+            else:
+                follow_btn = browser.find_one(".ffKix.sqdOP.L3NKy._8A5w5")
+                if follow_btn is not None:
+                    dict_post["previously_followed"] = dict_post["previously_followed"].append(username)
+                else:
+                    dict_post["others"] = dict_post["others"].append(username)
+
+            sleep(0.3)
+
+        posts = list(dict_post.values())
+        return posts
+

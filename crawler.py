@@ -29,6 +29,10 @@ def get_posts_by_user(username, number, detail, debug):
     ins_crawler = InsCrawler(has_screen=debug)
     return ins_crawler.get_user_posts(username, number, detail)
 
+def follow_accounts(ig_to_follow, debug):
+    ins_crawler = InsCrawler(has_screen=debug)
+    return ins_crawler.auto_follow(ig_to_follow)
+
 
 def get_profile(username):
     ins_crawler = InsCrawler()
@@ -67,13 +71,16 @@ def output(data, filepath):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Instagram Crawler", usage=usage())
     parser.add_argument(
-        "mode", help="options: [posts, posts_full, profile, profile_script, hashtag]"
+        "mode", help="options: [posts, posts_full, profile, profile_script, hashtag, follow]"
     )
     parser.add_argument("-n", "--number", type=int, help="number of returned posts")
     parser.add_argument("-u", "--username", help="instagram's username")
     parser.add_argument("-t", "--tag", help="instagram's tag name")
     parser.add_argument("-o", "--output", help="output file name(json format)")
     parser.add_argument("--debug", action="store_true")
+
+    # IG Follower
+    parser.add_argument("--input", help="list of instagram usernames to follow")
 
     prepare_override_settings(parser)
 
@@ -88,6 +95,16 @@ if __name__ == "__main__":
         output(
             get_posts_by_user(
                 args.username, args.number, args.mode == "posts_full", args.debug
+            ),
+            args.output,
+        )
+    elif args.mode == "follow":
+        arg_required("input")
+        ig_to_follow = args.input
+
+        output(
+            follow_accounts(
+                ig_to_follow, args.debug
             ),
             args.output,
         )
